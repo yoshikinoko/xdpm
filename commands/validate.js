@@ -14,57 +14,60 @@
  * limitations under the License.
  */
 
-const cli = require("cli");
-const path = require("path");
-const getPluginMetadata = require("../lib/getPluginMetadata");
-const validate = require("../lib/validate");
+const cli = require('cli');
+const path = require('path');
+const getPluginMetadata = require('../lib/getPluginMetadata');
+const validate = require('../lib/validate');
 
 /**
  * validates one or more plugins
  */
 function validatePlugin(opts, args) {
-    if (args.length === 0) {
-        args.push("."); // assume we want to package the plugin in the cwd
+  if (args.length === 0) {
+    args.push('.'); // assume we want to package the plugin in the cwd
+  }
+  console.log('hihihi');
+
+  const results = args.map(pluginToValidate => {
+    const sourcePath = path.resolve(pluginToValidate);
+    const result = {
+      path: sourcePath,
+    };
+
+    const metadata = getPluginMetadata(sourcePath);
+    if (!metadata) {
+      return Object.assign({}, result, {
+        error: `Plugin ${pluginToValidate} doesn't have a manifest.`,
+      });
     }
 
-    const results = args.map(pluginToValidate => {
-        const sourcePath = path.resolve(pluginToValidate);
-        const result = {
-            path: sourcePath
-        };
-
-        const metadata = getPluginMetadata(sourcePath);
-        if (!metadata) {
-            return Object.assign({}, result, {
-                "error": `Plugin ${pluginToValidate} doesn't have a manifest.`
-            });
-        }
-
-        const errors = validate(metadata, {root: sourcePath});
-        if (errors.length > 0) {
-            return Object.assign({}, result, {
-                "error": `Plugin ${pluginToValidate} has validation errors in the manifest.json:\n` + errors.join("\n")
-            });
-        }
-
-        result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] validated successfully`;
-        return result;
-    });
-
-    if (opts.json) {
-        cli.output(JSON.stringify(results));
-        return results;
+    const errors = validate(metadata, { root: sourcePath });
+    if (errors.length > 0) {
+      return Object.assign({}, result, {
+        error:
+          `Plugin ${pluginToValidate} has validation errors in the manifest.json:\n` +
+          errors.join('\n'),
+      });
     }
 
-    results.forEach(result => {
-        if (result.ok) {
-            cli.ok(result.ok);
-        } else {
-            cli.error(result.error);
-        }
-    });
+    result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] validated successfully`;
+    return result;
+  });
 
+  if (opts.json) {
+    cli.output(JSON.stringify(results));
     return results;
+  }
+
+  results.forEach(result => {
+    if (result.ok) {
+      cli.ok(result.ok);
+    } else {
+      cli.error(result.error);
+    }
+  });
+
+  return results;
 }
 
 module.exports = validatePlugin;

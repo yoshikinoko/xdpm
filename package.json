@@ -4,7 +4,8 @@
   "description": "Adobe XD CLI Plugin Manager Utility",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "precommit": "lint-staged"
   },
   "bin": "index.js",
   "repository": {
@@ -37,5 +38,13 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "eslint": "^5.0.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "lint-staged": "^9.3.0",
+    "prettier": "^1.13.0"
   }
 }
